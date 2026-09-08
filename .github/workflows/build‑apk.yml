@@ -15,8 +15,6 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
-          # 强制拉取子模块全部内容
-          submodules-depth: 0
 
       - name: Setup JDK 17
         uses: actions/setup-java@v5
