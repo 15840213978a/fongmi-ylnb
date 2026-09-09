@@ -17,17 +17,26 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # 缓存已经下载好的chaquopy python包
-      - name: Cache Chaquopy dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.gradle/caches/chaquopy
-          key: chaquopy-cache-${{ runner.os }}
+      # ===== 从仓库Release下载 chaquopy 预缓存包并解压 =====
+      - name: Download pre-built chaquopy cache from Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # 👉 修改这里的 TAG_NAME 为你上传缓存包对应的Release标签
+          TAG_NAME="cache-v1"
+          FILE_NAME="chaquopy-cache.tar.gz"
+          # 获取Release下载链接
+          ASSET_URL=$(curl -sL https://api.github.com/repos/${{ github.repository }}/releases/tags/${TAG_NAME} | jq -r '.assets[] | select(.name == "${FILE_NAME}") | .browser_download_url')
+          echo "Download url: ${ASSET_URL}"
+          curl -L -o ${FILE_NAME} "${ASSET_URL}"
+          # 解压到gradle缓存目录
+          mkdir -p ~/.gradle/caches/
+          tar -zxf ${FILE_NAME} -C ~/.gradle/caches/
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # 增加网络超时，关闭daemon
+      # 编译，关闭daemon，加长网络超时
       - name: Build Debug APK
         env:
           GRADLE_OPTS: "-Dorg.gradle.internal.http.connectionTimeout=120000 -Dorg.gradle.internal.http.socketTimeout=120000"
