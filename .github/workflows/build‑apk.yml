@@ -17,19 +17,13 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # ===== 从仓库Release下载 chaquopy 预缓存包并解压 =====
-      - name: Download pre-built chaquopy cache from Release
-        env:
-          GH_TOKEN: ${{ github.token }}
+      # ========== 直接写死Release下载链接，去掉jq，不会出现null报错 ==========
+      - name: Download pre-built chaquopy cache
         run: |
-          # 👉 修改这里的 TAG_NAME 为你上传缓存包对应的Release标签
-          TAG_NAME="cache-v1"
           FILE_NAME="chaquopy-cache.tar.gz"
-          # 获取Release下载链接
-          ASSET_URL=$(curl -sL https://api.github.com/repos/${{ github.repository }}/releases/tags/${TAG_NAME} | jq -r '.assets[] | select(.name == "${FILE_NAME}") | .browser_download_url')
-          echo "Download url: ${ASSET_URL}"
-          curl -L -o ${FILE_NAME} "${ASSET_URL}"
-          # 解压到gradle缓存目录
+          # 👉 替换下面URL为你Release里面chaquopy-cache.tar.gz的browser_download_url
+          DOWNLOAD_URL="https://github.com/你的用户名/你的仓库名/releases/download/cache-v1/chaquopy-cache.tar.gz"
+          curl -L -o ${FILE_NAME} "${DOWNLOAD_URL}"
           mkdir -p ~/.gradle/caches/
           tar -zxf ${FILE_NAME} -C ~/.gradle/caches/
 
