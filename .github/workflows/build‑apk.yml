@@ -17,28 +17,22 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # 缓存 Chaquopy 下载的Python包，避免每次重新下载
+      # 缓存 Chaquopy 下载的Android Python包，避免重复下载
       - name: Cache Chaquopy dependencies
         uses: actions/cache@v4
         with:
           path: ~/.gradle/caches/chaquopy
           key: chaquopy-cache-${{ runner.os }}
 
-      # 安装 Python3.10 (Chaquopy构建依赖)
-      - name: Install Python3.10
-        run: |
-          sudo apt update
-          sudo apt install -y python3.10 python3.10-dev
-
       # 赋予gradlew执行权限
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # 编译 Debug APK
+      # 构建Debug APK，增加--stacktrace方便看详细报错
       - name: Build Debug APK
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --stacktrace
 
-      # 上传编译产物APK到Artifacts
+      # 上传编译产物APK
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
