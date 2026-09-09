@@ -17,20 +17,21 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # ========== 直接写死Release下载链接，去掉jq，不会出现null报错 ==========
-      - name: Download pre-built chaquopy cache
+      # 安装gh cli，使用gh下载Release资产，支持私有仓库
+      - name: Download pre-built chaquopy cache via gh
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           FILE_NAME="chaquopy-cache.tar.gz"
-          # 👉 替换下面URL为你Release里面chaquopy-cache.tar.gz的browser_download_url
-          DOWNLOAD_URL="https://github.com/你的用户名/你的仓库名/releases/download/cache-v1/chaquopy-cache.tar.gz"
-          curl -L -o ${FILE_NAME} "${DOWNLOAD_URL}"
+          TAG_NAME="cache-v1"
+          # 下载当前仓库指定tag下的资产
+          gh release download ${TAG_NAME} -p ${FILE_NAME}
           mkdir -p ~/.gradle/caches/
           tar -zxf ${FILE_NAME} -C ~/.gradle/caches/
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # 编译，关闭daemon，加长网络超时
       - name: Build Debug APK
         env:
           GRADLE_OPTS: "-Dorg.gradle.internal.http.connectionTimeout=120000 -Dorg.gradle.internal.http.socketTimeout=120000"
