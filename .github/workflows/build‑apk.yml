@@ -17,13 +17,6 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # 缓存 chaquopy 缓存目录
-      - name: Cache Chaquopy
-        uses: actions/cache@v4
-        with:
-          path: ~/.gradle/caches/chaquopy
-          key: chaquopy-${{ hashFiles('**/build.gradle', '**/build.gradle.kts') }}
-
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
