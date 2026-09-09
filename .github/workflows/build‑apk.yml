@@ -17,6 +17,15 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+      # ✅ 修正：创建chaquopy完整层级目录，下载到正确路径
+      - name: Pre-download Chaquopy Python3.10
+        run: |
+          mkdir -p ~/.gradle/caches/chaquopy/downloads/python
+          cd ~/.gradle/caches/chaquopy/downloads/python
+          PY_ZIP="python-3.10.14-android-arm64-v8a.zip"
+          curl -L --connect-timeout 120 "https://mirror.ghproxy.com/https://chaquo.com/python/${PY_ZIP}" -o ${PY_ZIP}
+          ls -lh .
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
