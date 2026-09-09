@@ -17,12 +17,11 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # ========== 新增：缓存 chaquopy 目录 ==========
+      # 缓存 chaquopy 缓存目录
       - name: Cache Chaquopy
         uses: actions/cache@v4
         with:
           path: ~/.gradle/caches/chaquopy
-          # 缓存key，chaquopy版本变了就会自动失效重新下载
           key: chaquopy-${{ hashFiles('**/build.gradle', '**/build.gradle.kts') }}
 
       - name: Grant execute permission for gradlew
