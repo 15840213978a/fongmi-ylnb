@@ -17,17 +17,13 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # 安装gh cli，使用gh下载Release资产，支持私有仓库
-      - name: Download pre-built chaquopy cache via gh
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          FILE_NAME="chaquopy-cache.tar.gz"
-          TAG_NAME="cache-v1"
-          # 下载当前仓库指定tag下的资产
-          gh release download ${TAG_NAME} -p ${FILE_NAME}
-          mkdir -p ~/.gradle/caches/
-          tar -zxf ${FILE_NAME} -C ~/.gradle/caches/
+      # ========== 新增：缓存 chaquopy 目录 ==========
+      - name: Cache Chaquopy
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches/chaquopy
+          # 缓存key，chaquopy版本变了就会自动失效重新下载
+          key: chaquopy-${{ hashFiles('**/build.gradle', '**/build.gradle.kts') }}
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
