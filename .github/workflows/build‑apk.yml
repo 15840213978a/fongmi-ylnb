@@ -17,22 +17,22 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # 缓存 Chaquopy 下载的Android Python包，避免重复下载
+      # 缓存已经下载好的chaquopy python包
       - name: Cache Chaquopy dependencies
         uses: actions/cache@v4
         with:
           path: ~/.gradle/caches/chaquopy
           key: chaquopy-cache-${{ runner.os }}
 
-      # 赋予gradlew执行权限
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # 构建Debug APK，增加--stacktrace方便看详细报错
+      # 增加网络超时，关闭daemon
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.internal.http.connectionTimeout=120000 -Dorg.gradle.internal.http.socketTimeout=120000"
+        run: ./gradlew assembleDebug --stacktrace --no-daemon
 
-      # 上传编译产物APK
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
