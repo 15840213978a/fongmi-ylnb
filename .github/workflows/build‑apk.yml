@@ -2,38 +2,32 @@ name: Build APK
 on:
   push:
     branches: [ main ]
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
-
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
-
-      # ✅ 修正：创建chaquopy完整层级目录，下载到正确路径
+      # ✅ 去掉ghproxy代理，直接访问chaquo官方源
       - name: Pre-download Chaquopy Python3.10
         run: |
           mkdir -p ~/.gradle/caches/chaquopy/downloads/python
           cd ~/.gradle/caches/chaquopy/downloads/python
           PY_ZIP="python-3.10.14-android-arm64-v8a.zip"
-          curl -L --connect-timeout 120 "https://mirror.ghproxy.com/https://chaquo.com/python/${PY_ZIP}" -o ${PY_ZIP}
+          curl -L --connect-timeout 120 "https://chaquo.com/python/${PY_ZIP}" -o ${PY_ZIP}
           ls -lh .
-
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-
       - name: Build Debug APK
         env:
           GRADLE_OPTS: "-Dorg.gradle.internal.http.connectionTimeout=120000 -Dorg.gradle.internal.http.socketTimeout=120000"
         run: ./gradlew assembleDebug --stacktrace --no-daemon
-
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
