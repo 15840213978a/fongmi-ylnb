@@ -14,13 +14,21 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
-      # ✅ 去掉ghproxy代理，直接访问chaquo官方源
-      - name: Pre-download Chaquopy Python3.10
+      # ========= 新增：给构建机器安装Python3.10（解决Chaquo找不到buildPython） =========
+      - name: Install Python3.10 for Chaquopy buildPython
+        run: |
+          sudo apt update
+          sudo apt install -y python3.10 python3.10-dev python3.10-venv
+          # 软链接，让chaquopy识别python3.10
+          sudo ln -sf /usr/bin/python3.10 /usr/bin/python3
+          python3 --version
+      # Pre-download Android端Python包（手机运行用的arm64包）
+      - name: Pre-download Chaquopy Python3.10 Android
         run: |
           mkdir -p ~/.gradle/caches/chaquopy/downloads/python
           cd ~/.gradle/caches/chaquopy/downloads/python
           PY_ZIP="python-3.10.14-android-arm64-v8a.zip"
-          curl -L --connect-timeout 120 "https://chaquo.com/python/${PY_ZIP}" -o ${PY_ZIP}
+          curl -L --connect-timeout 120 --retry 3 "https://chaquo.com/python/${PY_ZIP}" -o ${PY_ZIP}
           ls -lh .
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
